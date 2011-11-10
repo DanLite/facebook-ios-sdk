@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2007-2009 Stig Brautaset. All rights reserved.
+ Copyright (C) 2011 Stig Brautaset. All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
@@ -27,49 +27,26 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#import <Foundation/Foundation.h>
-#import "SBJsonParser.h"
-#import "SBJsonWriter.h"
+#import "SBJsonStreamWriterAccumulator.h"
 
-/**
- @brief Facade for SBJsonWriter/SBJsonParser.
 
- Requests are forwarded to instances of SBJsonWriter and SBJsonParser.
- */
-@interface SBJSON : SBJsonBase <SBJsonParser, SBJsonWriter> {
+@implementation SBJsonStreamWriterAccumulator
 
-@private    
-    SBJsonParser *jsonParser;
-    SBJsonWriter *jsonWriter;
+@synthesize data;
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        data = [[NSMutableData alloc] initWithCapacity:8096u];
+    }
+    return self;
 }
 
 
-/// Return the fragment represented by the given string
-- (id)fragmentWithString:(NSString*)jsonrep
-                   error:(NSError**)error;
+#pragma mark SBJsonStreamWriterDelegate
 
-/// Return the object represented by the given string
-- (id)objectWithString:(NSString*)jsonrep
-                 error:(NSError**)error;
-
-/// Parse the string and return the represented object (or scalar)
-- (id)objectWithString:(id)value
-           allowScalar:(BOOL)x
-    			 error:(NSError**)error;
-
-
-/// Return JSON representation of an array  or dictionary
-- (NSString*)stringWithObject:(id)value
-                        error:(NSError**)error;
-
-/// Return JSON representation of any legal JSON value
-- (NSString*)stringWithFragment:(id)value
-                          error:(NSError**)error;
-
-/// Return JSON representation (or fragment) for the given object
-- (NSString*)stringWithObject:(id)value
-                  allowScalar:(BOOL)x
-    					error:(NSError**)error;
-
+- (void)writer:(SBJsonStreamWriter *)writer appendBytes:(const void *)bytes length:(NSUInteger)length {
+    [data appendBytes:bytes length:length];
+}
 
 @end
